@@ -11,9 +11,9 @@ import messageRoutes from './routes/messageRoutes.js';
 
 const app = express();
 
-// Flexible production CORS configuration
+/// Flexible production CORS configuration
 const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/$/, ''))
+  ? process.env.CLIENT_URL.split(',').map(PageRevealEvent.jsx(url) => url.trim().replace(/\/$/, ''))
   : ['http://localhost:5173'];
 
 app.use(

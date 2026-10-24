@@ -98,7 +98,7 @@ export const LoginPage = () => {
                 Forgot Password?
               </Link>
             </div>
-            
+
             {/* Password input with Show/Hide toggle */}
             <div style={{ position: 'relative' }}>
               <input
