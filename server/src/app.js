@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import { connectDB } from './config/db.js';
 
 // Import Routes
 import authRoutes from './routes/authRoutes.js';
@@ -11,30 +12,30 @@ import messageRoutes from './routes/messageRoutes.js';
 
 const app = express();
 
-// Flexible production CORS configuration
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/$/, ''))
-  : ['http://localhost:5173'];
+// Initialize DB connection immediately
+connectDB();
 
+// Universal CORS configuration supporting mobile browsers & Vercel
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow mobile apps, curl, Postman, and server-to-server
-      if (!origin) return callback(null, true);
-      const cleanOrigin = origin.replace(/\/$/, '');
-      if (
-        allowedOrigins.includes('*') ||
-        allowedOrigins.includes(cleanOrigin) ||
-        process.env.NODE_ENV !== 'production'
-      ) {
-        return callback(null, true);
-      }
-      // Fallback allow for deployed frontend domains
-      return callback(null, true);
-    },
-    credentials: true
+    origin: (origin, callback) => callback(null, true),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
+app.options('*', cors());
+
+// Ensure DB is connected before processing requests (crucial for serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('Database connection error:', err);
+    next();
+  }
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -42,14 +43,19 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static uploaded files (avatars & post media)
 app.use('/uploads', express.static(path.resolve('uploads')));
 
-// Mount API routes
+// Mount API routes (dual-mount with and without /api for seamless Vercel rewrites)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/messages', messageRoutes);
 
-// Health check route
-app.get('/api', (req, res) => {
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
+app.use('/posts', postRoutes);
+app.use('/messages', messageRoutes);
+
+// Health check routes
+app.get(['/', '/api'], (req, res) => {
   res.json({
     success: true,
     message: 'Social App API is running flawlessly! 🚀',

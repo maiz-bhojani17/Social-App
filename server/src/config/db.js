@@ -1,12 +1,14 @@
 import mongoose from 'mongoose';
 import dns from 'node:dns';
 
-// Fix for Windows & ISP DNS blocking MongoDB Atlas SRV query (querySrv ECONNREFUSED)
-try {
-  dns.setDefaultResultOrder('ipv4first');
-  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
-} catch (e) {
-  // DNS fallback if environment restricts custom resolvers
+// Fix for Windows & ISP DNS blocking MongoDB Atlas SRV query
+if (process.platform === 'win32') {
+  try {
+    dns.setDefaultResultOrder('ipv4first');
+    dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+  } catch (e) {
+    // DNS fallback if environment restricts custom resolvers
+  }
 }
 
 export const connectDB = async () => {
