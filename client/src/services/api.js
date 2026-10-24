@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://social-k1ipzttp9-maiz-bhojani.vercel.app/api';
 
 const api = axios.create({
   baseURL: API_BASE,

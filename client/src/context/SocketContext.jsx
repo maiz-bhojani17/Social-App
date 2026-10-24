@@ -11,7 +11,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user?._id) {
-      const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+      const socketUrl = import.meta.env.VITE_SOCKET_URL || 'https://social-k1ipzttp9-maiz-bhojani.vercel.app';
       const newSocket = io(socketUrl);
 
       newSocket.on('connect', () => {
