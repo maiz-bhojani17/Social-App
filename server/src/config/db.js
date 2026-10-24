@@ -10,6 +10,11 @@ try {
 }
 
 export const connectDB = async () => {
+  // Return early if already connected (vital for serverless & fast response)
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
+
   let uri = process.env.MONGO_URI;
 
   if (!uri || uri.includes('<db_password>')) {
